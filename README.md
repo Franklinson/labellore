@@ -1,0 +1,1 @@
+This repo is for labellore django version, will update readme as I code along
