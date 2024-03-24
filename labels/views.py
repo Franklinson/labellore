@@ -4,4 +4,5 @@ from django.http import HttpResponse
 
 
 def home(request):
-    return HttpResponse("<h1> Home Page </h1>")
+    context = {}
+    return render(request, 'labels/home.html', context)
