@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Label List</title>
+</head>
+<body>
+    <h1>Labels</h1>
+    <ul>
+        {% for label in labels %}
+        <li>{{ label.name }}</li>
+        <li>{{ label.serving_size }} {{label.serving_size_unit}}</li>
+        <!-- Display other fields as needed -->
+        {% endfor %}
+    </ul>
+</body>
+</html>
