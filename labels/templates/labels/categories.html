@@ -1,0 +1,63 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Database</title>
+</head>
+<body>
+  <select id="categoryDropdown">
+    <option value="">Select a category</option>
+    {% for category, _ in categories %}
+    <option value="{{ category }}">{{ category }}</option>
+    {% endfor %}
+  </select>
+
+  <select id="brandsDropdown">
+    <option value="">Select a brand</option>
+  </select>
+
+  <select id="foodsDropdown">
+    <option value="">Select a food</option>
+  </select>
+
+  <div id="foodLabel"></div>
+
+  <script>
+    document.getElementById('categoryDropdown').addEventListener('change', function() {
+      var category = this.value;
+      if (category) {
+        fetch('/get_brands?category=' + category)
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('brandsDropdown').innerHTML = data;
+          });
+      }
+    });
+
+    document.getElementById('brandsDropdown').addEventListener('change', function() {
+      var brand = this.value;
+      if (brand) {
+        fetch('/get_foods?brand=' + brand)
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('foodsDropdown').innerHTML = data;
+          });
+      }
+    });
+
+    document.getElementById('foodsDropdown').addEventListener('change', function() {
+      var food = this.value;
+      if (food) {
+        fetch('/get_food_label?food=' + food)
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('foodLabel').innerHTML = data;
+          });
+      }
+    });
+  </script>
+</body>
+</html>

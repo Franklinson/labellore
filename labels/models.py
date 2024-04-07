@@ -6,11 +6,11 @@ class Unit(models.Model):
     name = models.CharField(max_length=20)
     abbreviation = models.CharField(max_length=10)
 
+    def __str__(self):
+        return f'{self.abbreviation}'
 
 
-
-
-class Label(models.Model):
+class Category(models.Model):
     CATEGORIES = (
         ('TINNED FOODS', 'TINNED FOODS'), 
         ('INSTANT STAPLES', 'INSTANT STAPLES'), 
@@ -24,10 +24,25 @@ class Label(models.Model):
         ('INFANT FORMULAE', 'INFANT FORMULAE'),
         ('NUTRITION SUPPLEMENTS', 'NUTRITION SUPPLEMENTS'),
         ('SPICES', 'SPICES'),
-)
+    )
     categories = models.CharField(max_length=100, choices=CATEGORIES)
-    name = models.CharField(max_length=200, null=True, blank=True)
+    
+    def __str__(self):
+        return f'{self.categories}'
+
+
+
+class Brand(models.Model):
     brand = models.CharField(max_length=200, null=True, blank=True)
+    
+    def __str__(self):
+        return f'{self.brand}'
+    
+
+class Label(models.Model):
+    Category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, blank=True)
+    brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL, blank=True)
+    name = models.CharField(max_length=200, null=True, blank=True)
     net_weight = models.FloatField(max_length=50, null=True, blank=True)
     net_weight_unit = models.ForeignKey(Unit, related_name='net_weight_unit', on_delete=models.SET_NULL, null=True, blank=True)
     serving_size = models.FloatField(max_length=50, null=True, blank=True)
@@ -196,12 +211,5 @@ class Label(models.Model):
     theobromine_unit = models.ForeignKey(Unit, related_name='theobromine_unit', on_delete=models.SET_NULL, null=True, blank=True)
     
     
-    
-    
-    
-    
-    
-    
-    
-    # def __str__(self):
-    #     return f'{self.categories} - {self.name} - {self.brand} - {self.energy}'
+    def __str__(self):
+        return f'{self.categories} - {self.name} - {self.brand} - {self.energy}'
