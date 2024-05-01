@@ -215,4 +215,4 @@ class Label(models.Model):
     
     
     def __str__(self):
-        return f'{self.categories} - {self.name} - {self.brand} - {self.energy}'
+        return f'{self.name} - {self.brand} - {self.energy}'
