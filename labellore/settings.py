@@ -39,10 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dotenv',
-    'labels',
+    'commercials',
     'blog',
     'ckeditor',
     'ckeditor_uploader',
+    'Locals',
 ]
 
 MIDDLEWARE = [
