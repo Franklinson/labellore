@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from blog.models import Blogs
+from rest_framework import status
+
+from .serializers import BlogSerializer
 # Create your views here.
 
 @api_view(['GET'])
@@ -50,3 +54,16 @@ def getfood(request):
     },
     ]
     return Response(food)
+
+@api_view(['GET'])
+def news(request):
+    news = Blogs.objects.all()
+    serializer = BlogSerializer(news, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def postnews(request, pk):
+    news = Blogs.objects.get(id=pk)
+    serializer = BlogSerializer(news, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)

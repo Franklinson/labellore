@@ -23,7 +23,7 @@ class Blogs(models.Model):
     date_updated = models.DateField(auto_now=True)
     
     def __str__(self):
-        return f'{self.titles} - {self.categories}'
+        return f'{self.title} - {self.categories}'
     
     class Meta:
         verbose_name_plural = "Blogs"
