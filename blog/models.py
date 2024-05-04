@@ -15,9 +15,9 @@ class Category(models.Model):
     
     
 class Blogs(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=200)
-    categories = models.ForeignKey(Category, on_delete=models.CASCADE)
+    categories = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL)
     body = RichTextUploadingField()
     date_created = models.DateField(auto_now_add=True)
     date_updated = models.DateField(auto_now=True)
