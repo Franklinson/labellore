@@ -14,6 +14,7 @@ class LabelAdmin(admin.ModelAdmin):
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
     list_display = ("name", "abbreviation")
+    search_fields = ("name", )
     
     
 # @admin.register(Category)
@@ -24,3 +25,4 @@ class UnitAdmin(admin.ModelAdmin):
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
     list_display = ("brand", )
+    search_fields = ("name", )
