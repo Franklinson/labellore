@@ -25,7 +25,7 @@ class LabelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Label,LabelAdmin)
-# admin.site.register(Nutrient)
+admin.site.register(Nutrient)
 
 
 @admin.register(Unit)
