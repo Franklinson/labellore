@@ -20,9 +20,9 @@ def labels(request):
     serializer = LabelSerializer(label, many=True)
     return Response(serializer.data)
 
-# API to call individual blogs
-# @api_view(['GET'])
-# def blog(request, pk):
-#     blog = Blogs.objects.get(id=pk)
-#     serializer = BlogSerializer(blog, many=False)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
+# API to call individual food label
+@api_view(['GET'])
+def label(request, pk):
+    onelabel = Label.objects.get(id=pk)
+    serializer = LabelSerializer(onelabel, many=False)
+    return Response(serializer.data)
