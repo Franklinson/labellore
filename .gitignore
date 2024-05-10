@@ -2,4 +2,7 @@ venv
 __pychache__
 db.sqlite3
 .env
-/migrations
+api/migrations
+blog/migrations
+commercials/migrations
+Locals/migrations
