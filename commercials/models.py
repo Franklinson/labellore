@@ -18,7 +18,6 @@ class Unit(models.Model):
 
 
 
-
 class Label(models.Model):
     CATEGORIES = (
         ('TINNED FOODS', 'TINNED FOODS'), 

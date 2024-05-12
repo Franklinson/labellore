@@ -7,17 +7,17 @@ from rest_framework import status
 from api.serializers import BlogSerializer, CategorySerializer
 
 
-# API to call all blogs
+# API to call all blogs and its data
 @api_view(['GET'])
 def blogs(request):
-    blog = Blogs.objects.all()
+    blog = Blogs.objects.select_related('categories', 'author').all()
     serializer = BlogSerializer(blog, many=True)
     return Response(serializer.data)
 
-# API to call individual blogs
+# API to call individual blogs and its data
 @api_view(['GET'])
 def blog(request, pk):
-    blog = Blogs.objects.get(id=pk)
+    blog = Blogs.objects.select_related('categories', 'author').get(id=pk)
     serializer = BlogSerializer(blog, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
