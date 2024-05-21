@@ -32,7 +32,7 @@ class BrandSerializer(ModelSerializer):
 class UnitSerializer(ModelSerializer):
     class Meta:
         model = Unit
-        fields = ['id', 'net_weight_unit', 'serving_size_unit', 'serving_quantity_unit','per_unit', 'energy_unit']
+        fields = '__all__'
         
 class NutrientSerializer(ModelSerializer):
     class Meta:
@@ -47,8 +47,13 @@ class NutrientListSerializer(ModelSerializer):
 
 class LabelSerializer(ModelSerializer):
     brand = BrandSerializer(read_only=True)
-    unit = UnitSerializer(read_only=True)
+    unit = UnitSerializer(many=True, read_only=True)
+    nutrient = NutrientSerializer(many=True, read_only=True)
+    nutrient_list = NutrientListSerializer(many=True, read_only=True)
+    
     
     class Meta:
         model = Label
         fields = '__all__'
+        
+        
