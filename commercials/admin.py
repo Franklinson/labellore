@@ -1,24 +1,27 @@
 from django.contrib import admin
 
 
-from commercials.models import Food, Unit, Brand, FoodNutrient, Nutrient
+from commercials.models import *
 
 
 class FoodNutrientInline(admin.TabularInline):
     model = FoodNutrient
     extra = 1
 
+class NutrientContentInline(admin.TabularInline):
+    model = NutrientContent
+    extra = 1
 
-# @admin.register(Label)
+
 class FoodAdmin(admin.ModelAdmin):
     list_display = ("categories", "name", "brand")
     list_filter = ("categories",)
     search_fields = ("brand__brand", "name")
     fieldsets = [
         (None, {"fields": ["categories", "brand", "name"]}),
-        # ("Date information", {"fields": ["brand"], "classes": ["collapse"]}),
+        
     ]
-    inlines = [FoodNutrientInline]
+    inlines = [NutrientContentInline, FoodNutrientInline]
 
 
 admin.site.register(Food,FoodAdmin)
@@ -44,3 +47,15 @@ class BrandAdmin(admin.ModelAdmin):
 class FoodNutrientAdmin(admin.ModelAdmin):
     list_display = ('food', 'nutrient', 'amount')
     list_filter = ('food', 'nutrient')
+    
+
+@admin.register(Content)
+class ContentAdmin(admin.ModelAdmin):
+    list_display = ("content",)
+    search_fields = ("content",)
+    
+    
+@admin.register(NutrientContent)
+class NutrientContentAdmin(admin.ModelAdmin):
+    list_display = ("food", "content")
+    list_filter = ("food", "content")

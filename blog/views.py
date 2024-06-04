@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from blog.serializers import BlogSerializer, CategorySerializer
 from blog.models import Blogs, Category
 from rest_framework import status
-
-from api.serializers import BlogSerializer, CategorySerializer
 
 
 # API to call all blogs and its data

@@ -3,6 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    # path('', views.home, name='home'),
+    path('locals/<int:pk>/', views.Locals, name='local-food'),
     
 ]

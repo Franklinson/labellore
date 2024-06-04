@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 
 class Brand(models.Model):
     brand = models.CharField(max_length=200, null=True, blank=True)
@@ -19,10 +18,15 @@ class Unit(models.Model):
 
 class Nutrient(models.Model):
     name = models.CharField(max_length=100, null=True)
-    # unit = models.CharField(max_length=20, null=True)
 
     def __str__(self):
         return self.name
+    
+class Content(models.Model):
+    content = models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return f"{self.content}"
 
 
 
@@ -44,17 +48,8 @@ class Food(models.Model):
     categories = models.CharField(max_length=100, choices=CATEGORIES, blank=True)
     brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL, blank=True)
     name = models.CharField(max_length=200, null=True, blank=True)
-    # net_weight = models.FloatField(max_length=50, null=True, blank=True)
-    # net_weight_unit = models.ForeignKey(Unit, related_name='net_weight_unit', on_delete=models.SET_NULL, null=True, blank=True)
-    # serving_size = models.FloatField(max_length=50, null=True, blank=True)
-    # serving_size_unit = models.ForeignKey(Unit, related_name='serving_size_unit', on_delete=models.SET_NULL, null=True, blank=True)
-    # serving_quantity = models.FloatField(max_length=50, null=True, blank=True)
-    # serving_quantity_unit = models.ForeignKey(Unit, related_name='serving_quantity_unit', on_delete=models.SET_NULL, null=True, blank=True)
-    # per = models.FloatField(max_length=50, null=True, blank=True)
-    # per_unit = models.ForeignKey(Unit, related_name='per_unit', on_delete=models.SET_NULL, null=True, blank=True)
-    # energy = models.FloatField(max_length=50, null=True, blank=True)
-    # energy_unit = models.ForeignKey(Unit, related_name='energy_unit', on_delete=models.SET_NULL, null=True, blank=True)
     nutrients = models.ManyToManyField(Nutrient, through='FoodNutrient')
+    content = models.ManyToManyField(Content, through='NutrientContent')
     
     
     def __str__(self):
@@ -73,3 +68,17 @@ class FoodNutrient(models.Model):
 
     def __str__(self):
         return f"{self.food.name} - {self.nutrient.name}: {self.amount} {self.unit}"
+    
+    
+
+class NutrientContent(models.Model):
+    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    content = models.ForeignKey(Content, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('food', 'content')
+
+    def __str__(self):
+        return f"{self.food.name} - {self.content.content} - {self.amount} {self.unit}"
