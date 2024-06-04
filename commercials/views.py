@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import *
-from api.serializers import LabelSerializer
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
-# Create your views here.
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Food
+from api.serializers import FoodSerializer
 
 
 def home(request):
@@ -13,16 +13,13 @@ def home(request):
 
 
 
-# API to call all labels
-@api_view(['GET'])
-def labels(request):
-    label = Label.objects.all()
-    serializer = LabelSerializer(label, many=True)
-    return Response(serializer.data)
 
-# API to call individual food label
 @api_view(['GET'])
-def label(request, pk):
-    onelabel = Label.objects.get(id=pk)
-    serializer = LabelSerializer(onelabel, many=False)
+def food_detail(request, pk):
+    try:
+        food = Food.objects.get(pk=pk)
+    except Food.DoesNotExist:
+        return Response({'error': 'Food not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = FoodSerializer(food)
     return Response(serializer.data)

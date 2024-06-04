@@ -1,32 +1,31 @@
 from django.contrib import admin
 
 
-from commercials.models import Label, Unit, Brand, NutrientList, Nutrient
+from commercials.models import Food, Unit, Brand, FoodNutrient, Nutrient
 
 
-class NutrientInline(admin.StackedInline):
-    model = Nutrient
-    extra = 3
-
+class FoodNutrientInline(admin.TabularInline):
+    model = FoodNutrient
+    extra = 1
 
 
 # @admin.register(Label)
-class LabelAdmin(admin.ModelAdmin):
-    list_display = ("categories", "name", "brand", "energy")
+class FoodAdmin(admin.ModelAdmin):
+    list_display = ("categories", "name", "brand")
     list_filter = ("categories",)
     search_fields = ("brand__brand", "name")
     fieldsets = [
-        (None, {"fields": ["categories", "brand", "name", "net_weight", "net_weight_unit",
-                           "serving_size", "serving_size_unit", "serving_quantity", "serving_quantity_unit",
-                           "per", "per_unit", "energy", "energy_unit"]}),
+        (None, {"fields": ["categories", "brand", "name"]}),
         # ("Date information", {"fields": ["brand"], "classes": ["collapse"]}),
     ]
-    inlines = [NutrientInline]
+    inlines = [FoodNutrientInline]
 
 
-admin.site.register(Label,LabelAdmin)
-admin.site.register(Nutrient)
+admin.site.register(Food,FoodAdmin)
 
+@admin.register(Nutrient)
+class NutrientAdmin(admin.ModelAdmin):
+    list_display = ('name', )
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
@@ -41,7 +40,7 @@ class BrandAdmin(admin.ModelAdmin):
     search_fields = ("brand", )
     
 
-@admin.register(NutrientList)
-class NutrientListAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+@admin.register(FoodNutrient)
+class FoodNutrientAdmin(admin.ModelAdmin):
+    list_display = ('food', 'nutrient', 'amount')
+    list_filter = ('food', 'nutrient')

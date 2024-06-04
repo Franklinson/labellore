@@ -1,10 +1,11 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from blog.models import Blogs, Category
-from commercials.models import Label, Brand, Unit, Nutrient, NutrientList
+from commercials.models import Food, Brand, Unit, Nutrient, FoodNutrient
 from django.contrib.auth.models import User
 
 
-
+# Blog API
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -23,37 +24,40 @@ class BlogSerializer(ModelSerializer):
         fields = '__all__'
 
 
-
-class BrandSerializer(ModelSerializer):
-    class Meta:
-        model = Brand
-        fields = '__all__'
-        
-class UnitSerializer(ModelSerializer):
+# Commeercial Food API
+class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
         fields = '__all__'
-        
-class NutrientSerializer(ModelSerializer):
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = '__all__'
+
+
+class NutrientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nutrient
-        fields = '__all__'
-        
+        fields = ['id', 'name']
 
-class NutrientListSerializer(ModelSerializer):
-    class Meta:
-        model = NutrientList
-        fields = '__all__'
+class FoodNutrientSerializer(serializers.ModelSerializer):
+    nutrient = NutrientSerializer()
+    unit = UnitSerializer()
 
-class LabelSerializer(ModelSerializer):
-    brand = BrandSerializer(read_only=True)
-    unit = UnitSerializer(many=True, read_only=True)
-    nutrient = NutrientSerializer(many=True, read_only=True)
-    nutrient_list = NutrientListSerializer(many=True, read_only=True)
-    
-    
     class Meta:
-        model = Label
-        fields = '__all__'
-        
-        
+        model = FoodNutrient
+        fields = ['nutrient', 'amount', 'unit']
+
+class FoodSerializer(serializers.ModelSerializer):
+    brand = BrandSerializer()
+    nutrients = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Food
+        fields = ['id', 'name', 'brand', 'nutrients']
+
+    def get_nutrients(self, obj):
+        food_nutrients = FoodNutrient.objects.filter(food=obj)
+        return FoodNutrientSerializer(food_nutrients, many=True).data
