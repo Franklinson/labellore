@@ -1,69 +1,82 @@
-# from django.shortcuts import render
-# from rest_framework.response import Response
-# from rest_framework.decorators import api_view
-# from blog.models import Blogs
-# from rest_framework import status
-
-# from .serializers import BlogSerializer
-# # Create your views here.
-
-# @api_view(['GET'])
-# def getfood(request):
-#     food =[
-#     {
-#         "brand": "null",
-#         "category": "OILS",
-#         "id": 13,
-#         "name": "Sunflower Oil",
-#         "nutrients": "Category:OILS ,Name:Sunflower Oil ,Brand:Bizee ,Net_Weight:1000.0 g,Serving_Size_Unit:None ,Per:100.0 ,Per_Unit:g ,Energy:900.0 Kcal,Fat:100.0 g,Saturated_Fat:11.7 g"
-#     },
-#     {
-#         "brand": "null",
-#         "category": "TINNED FOODS",
-#         "id": 24,
-#         "name": "Corned beef",
-#         "nutrients": "Category:TINNED FOODS ,Name:Corned beef ,Brand:Heinz ,Net_Weight:0.0 g,Serving_Size:0.0 ,Serving_Size_Unit:None ,Per:30.0 ,Per_Unit:None ,Energy:71.0 Kcal,Carbohydrate:0.3 g,Protein:6.6 g,Sugar:0.3 g,Fat:4.5 g,Saturated_Fat:2.5 g,Sodium:295.0 mg"
-#     },
-#     {
-#         "brand": "Afo",
-#         "category": "TINNED FOODS",
-#         "id": 27,
-#         "name": "Mackerel",
-#         "nutrients": "Category:TINNED FOODS ,Name:Mackerel ,Brand:Geisha ,Net_Weight:155.0 g,Serving_Size_Unit:None ,Per:60.0 ,Per_Unit:None ,Energy:90.0 Kcal,Protein:12.0 g,Fat:4.0 g,Saturated_Fat:2.5 g,Sodium:230.0 mg,Cholesterol:30.0 mg"
-#     },
-#     {
-#         "brand": "Ado",
-#         "category": "TINNED FOODS",
-#         "id": 28,
-#         "name": "Mackerel",
-#         "nutrients": "Category:TINNED FOODS ,Name:Mackerel ,Brand:Lele ,Net_Weight:150.0 g,Serving_Size_Unit:None ,Per:60.0 ,Per_Unit:None ,Energy:90.0 Kcal,Protein:12.0 g,Fat:4.0 g,Saturated_Fat:2.5 g,Sodium:230.0 mg,Cholesterol:30.0 mg"
-#     },
-#     {
-#         "brand": "Ama",
-#         "category": "TINNED FOODS",
-#         "id": 29,
-#         "name": "Mackerel",
-#         "nutrients": "Category:TINNED FOODS ,Name:Mackerel ,Brand:Sultana ,Serving_Size_Unit:None ,Per:100.0 ,Per_Unit:None ,Energy:164.0 Kcal,Carbohydrate:3.7 g,Protein:10.6 g,Sugar:1.5 g,Fat:11.8 g,Saturated_Fat:3.8 g,Sodium:456.0 mg"
-#     },
-#     {
-#         "brand": "Nutricia ",
-#         "category": "INFANT FORMULAE",
-#         "id": 30,
-#         "name": "Aptamil 1",
-#         "nutrients": "Category:INFANT FORMULAE ,Name:Aptamil 1 ,Brand:Nutricia  ,Serving_Size_Unit:g ,Per:100.0 ,Per_Unit:mls ,Saturated_Fat:1.5 g,Dietary_Fiber:0.6 g"
-#     },
-#     ]
-#     return Response(food)
-
-# # @api_view(['GET'])
-# # def news(request):
-# #     news = Blogs.objects.all()
-# #     serializer = BlogSerializer(news, many=True)
-# #     return Response(serializer.data)
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login as django_login
+from rest_framework import status
+from django.contrib.auth import logout as django_logout
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from .serializers import UserSerializer
+from rest_framework.permissions import AllowAny
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.models import User
+from .serializers import PasswordResetSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
 
 
-# # @api_view(['GET'])
-# # def postnews(request, pk):
-# #     news = Blogs.objects.get(id=pk)
-# #     serializer = BlogSerializer(news, many=False)
-# #     return Response(serializer.data, status=status.HTTP_200_OK)
+@api_view(['POST'])
+def signup(request):
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['POST'])
+def login(request):
+    # Extract username and password from request data
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    # Authenticate the user
+    user = authenticate(request=request._request, username=username, password=password)
+    
+    if user is not None:
+        django_login(request._request, user)
+        return Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    django_logout(request._request)
+    return Response({'message': 'Logged out successfully!'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request_view(request):
+    serializer = PasswordResetSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Password reset link has been sent to your email."}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True)
+
+    def save(self, user):
+        user.set_password(self.validated_data['new_password'])
+        user.save()
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_confirm_view(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        serializer = SetNewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user)
+            return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)

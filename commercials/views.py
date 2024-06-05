@@ -5,6 +5,9 @@ from rest_framework import status
 from .models import Food
 from .serializers import FoodSerializer
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+
 
 def home(request):
     context = {}
@@ -14,6 +17,7 @@ def home(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def food_detail(request, pk):
     try:
         food = Food.objects.get(pk=pk)

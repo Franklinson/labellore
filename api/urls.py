@@ -1,10 +1,10 @@
 from django.urls import path
-# from . import views
-
+from .views import *
 
 urlpatterns = [
-    # path('getfood', views.getfood, name='getfood'),
-    # path('news/', views.news, name='news'),
-    # path('news/<int:pk>/', views.postnews, name='postnews'),
-    
+    path('signup/', signup, name='signup'),
+    path('login/', login, name='login'),
+    path('logout/', logout, name='logout'),
+    path('password-reset/', password_reset_request_view, name='password-reset'),
+    path('password-reset-confirm/<uidb64>/<token>/', password_reset_confirm_view, name='password-reset-confirm'),
 ]
