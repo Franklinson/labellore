@@ -26,3 +26,4 @@ urlpatterns = [
 admin.site.site_header = "LABELLORE"
 admin.site.site_title = "LABELLORE"
 admin.site.index = "Welcome to Admin Dashboard"
+

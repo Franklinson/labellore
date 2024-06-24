@@ -11,7 +11,7 @@ from rest_framework.decorators import permission_classes
 
 # API to call all blogs and its data
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def blogs(request):
     blog = Blogs.objects.select_related('categories', 'author').all()
     serializer = BlogSerializer(blog, many=True)
@@ -19,7 +19,7 @@ def blogs(request):
 
 # API to call individual blogs and its data
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def blog(request, pk):
     blog = Blogs.objects.select_related('categories', 'author').get(id=pk)
     serializer = BlogSerializer(blog, many=False)
@@ -28,7 +28,7 @@ def blog(request, pk):
 
 # API to call all categories attached to blogs
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def categories(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
@@ -37,7 +37,7 @@ def categories(request):
 
 # API to call individual categories of a blog
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def category(request, pk):
     category = Category.objects.get(id=pk)
     serializer = CategorySerializer(category, many=False)

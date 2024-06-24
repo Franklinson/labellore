@@ -17,7 +17,7 @@ def home(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def food_detail(request, pk):
     try:
         food = Food.objects.get(pk=pk)
@@ -29,7 +29,7 @@ def food_detail(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def foods(request):
     try:
         foods = Food.objects.all()

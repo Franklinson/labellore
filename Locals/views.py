@@ -10,7 +10,7 @@ from rest_framework.decorators import permission_classes
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def Locals(request, pk):
     try:
         food = Food.objects.get(pk=pk)
@@ -23,7 +23,7 @@ def Locals(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def foods(request):
     try:
         foods = Food.objects.all()
