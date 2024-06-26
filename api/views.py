@@ -9,12 +9,18 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
-from .serializers import PasswordResetSerializer
+from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(
+    request=UserSerializer,
+    responses={201: UserSerializer}
+)
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def signup(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
@@ -24,23 +30,26 @@ def signup(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+@extend_schema(
+    request=LoginSerializer,
+    responses={200: None, 400: 'Invalid credentials'}
+)
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
-    # Extract username and password from request data
-    username = request.data.get('username')
-    password = request.data.get('password')
-    
-    # Authenticate the user
-    user = authenticate(request=request._request, username=username, password=password)
-    
-    if user is not None:
-        django_login(request._request, user)
-        return Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
-    else:
+    serializer = LoginSerializer(data=request.data)
+    if serializer.is_valid():
+        user = authenticate(username=serializer.validated_data['username'], password=serializer.validated_data['password'])
+        if user is not None:
+            django_login(request._request, user)
+            return Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    responses={200: 'Logged out successfully!'}
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
@@ -48,6 +57,10 @@ def logout(request):
     return Response({'message': 'Logged out successfully!'}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    request=PasswordResetSerializer,
+    responses={200: 'Password reset link has been sent to your email.'}
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request_view(request):
@@ -57,13 +70,11 @@ def password_reset_request_view(request):
         return Response({"message": "Password reset link has been sent to your email."}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class SetNewPasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(write_only=True)
 
-    def save(self, user):
-        user.set_password(self.validated_data['new_password'])
-        user.save()
-
+@extend_schema(
+    request=SetNewPasswordSerializer,
+    responses={200: 'Password has been reset successfully.', 400: 'Invalid token or user ID.'}
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request, uidb64, token):

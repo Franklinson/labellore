@@ -48,3 +48,16 @@ class PasswordResetSerializer(serializers.Serializer):
                   f'If that is not you, please ignore this email and change your password immediately. ' \
                   f'Please click the link below to reset your password:\n\n{reset_link}'
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+        
+        
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True)
+
+    def save(self, user):
+        user.set_password(self.validated_data['new_password'])
+        user.save()
