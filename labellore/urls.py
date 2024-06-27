@@ -17,6 +17,7 @@ urlpatterns = [
     path('blogs/', include('blog.urls')),
     path('', include('Locals.urls')),
     path('account/', include('api.urls')),
+    path('calculators/', include('calculators.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     
     
