@@ -61,3 +61,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
     def save(self, user):
         user.set_password(self.validated_data['new_password'])
         user.save()
+        
+        
+class LogoutResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()

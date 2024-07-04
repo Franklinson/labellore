@@ -4,8 +4,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import BMRRequestSerializer
+from drf_spectacular.utils import extend_schema
+from rest_framework.permissions import AllowAny
+
+
+@extend_schema(
+    request=BMRRequestSerializer,
+    responses={201: BMRRequestSerializer}
+)
 
 class BMRCalculationView(APIView):
+    permission_classes = [AllowAny]
+    
     def post(self, request, equation):
         serializer = BMRRequestSerializer(data=request.data)
         if serializer.is_valid():

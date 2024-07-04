@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as django_login
-from rest_framework import status
+from rest_framework import status, generics
 from django.contrib.auth import logout as django_logout
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,7 +11,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
 from .serializers import *
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
 
 
@@ -52,9 +51,12 @@ def login(request):
 )
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def logout(request):
-    django_logout(request._request)
-    return Response({'message': 'Logged out successfully!'}, status=status.HTTP_200_OK)
+def logout_view(request):
+    django_logout(request)
+    data = {'message': 'Logged out successfully!'}
+    serializer = LogoutResponseSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @extend_schema(
