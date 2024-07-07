@@ -15,7 +15,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('commercials.urls')),
     path('blogs/', include('blog.urls')),
-    path('', include('Locals.urls')),
+    # path('', include('Locals.urls')),
     path('account/', include('api.urls')),
     path('calculators/', include('calculators.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),

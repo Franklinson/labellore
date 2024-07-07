@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'blog',
     'ckeditor',
     'ckeditor_uploader',
-    'Locals',
+    # 'Locals',
     'api.apps.ApiConfig',
     'rest_framework',
     # 'django.contrib.sessions',
