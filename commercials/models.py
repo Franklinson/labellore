@@ -44,6 +44,12 @@ class Food(models.Model):
         ('INFANT FORMULAE', 'INFANT FORMULAE'),
         ('NUTRITION SUPPLEMENTS', 'NUTRITION SUPPLEMENTS'),
         ('SPICES', 'SPICES'),
+        ('ANIMAL PROTEINS', 'ANIMAL PROTEINS '), 
+        ('SOUP AND STEWS', 'SOUP AND STEWS'), 
+        ('PORRIDGES', 'PORRIDGES'),
+        ('LOCAL STAPLES', 'LOCAL STAPLES'),
+        ('FRUITS AND VEGETABLES', 'FRUITS AND VEGETABLES'),
+        ('NUTS AND LEGUMES', 'NUTS AND LEGUMES'),
     )
     categories = models.CharField(max_length=100, choices=CATEGORIES, blank=True)
     brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL, blank=True)
