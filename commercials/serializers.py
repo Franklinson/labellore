@@ -53,9 +53,24 @@ class FoodSerializer(serializers.ModelSerializer):
         fields = ['id', 'categories', 'name', 'brand', 'nutrients', 'content']
 
     def get_content(self, obj):
-        food_contents = NutrientContent.objects.filter(food=obj)
+        # Extract the ID from the Elasticsearch Hit object if it's an ES Hit object
+        food_id = obj.meta.id if hasattr(obj, 'meta') else obj.id
+
+        # Now filter using the correct ID
+        food_contents = NutrientContent.objects.filter(food_id=food_id)
         return NutrientContentSerializer(food_contents, many=True).data
     
     def get_nutrients(self, obj):
-        food_nutrients = FoodNutrient.objects.filter(food=obj)
+        # Extract the ID from the Elasticsearch Hit object if it's an ES Hit object
+        food_id = obj.meta.id if hasattr(obj, 'meta') else obj.id
+
+        # Now filter using the correct ID
+        food_nutrients = FoodNutrient.objects.filter(food_id=food_id)
         return FoodNutrientSerializer(food_nutrients, many=True).data
+
+
+
+# class FoodSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Food
+#         fields = '__all__'

@@ -44,10 +44,19 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
     'drf_spectacular',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+    'django_filters',
+    'elasticsearch',
 ]
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
   
     'DEFAULT_AUTHENTICATION_CLASSES': (
 
@@ -58,8 +67,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    
 }
-
 
 
 SIMPLE_JWT = {
@@ -151,6 +160,12 @@ DATABASES = {
     }
 }
 
+# Elasticsearch settings
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'  # Adjust according to your Elasticsearch server
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
