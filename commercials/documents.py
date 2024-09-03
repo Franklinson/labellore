@@ -1,48 +1,55 @@
-from django_elasticsearch_dsl import Document, Index, fields
+from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from .models import Food, Brand, Nutrient, Content
+from .models import Food, Brand, Nutrient, Content, Unit
 
-# Define the index name
-food_index = Index('foods')
-
-@food_index.doc_type
+@registry.register_document
 class FoodDocument(Document):
+    # Related fields for Brand
     brand = fields.ObjectField(properties={
         'brand': fields.TextField(),
     })
-
-    nutrients = fields.ObjectField(properties={
+    
+    # Many-to-many relationship fields for Nutrients with Unit Abbreviations
+    nutrients = fields.NestedField(properties={
         'name': fields.TextField(),
+        'amount': fields.FloatField(),
+        'unit': fields.ObjectField(properties={
+            'abbreviation': fields.TextField(),  # Only the abbreviation field
+        })
     })
-
-    content = fields.ObjectField(properties={
+    
+    # Many-to-many relationship fields for Content with Unit Abbreviations
+    content = fields.NestedField(properties={
         'content': fields.TextField(),
+        'amount': fields.FloatField(),
+        'unit': fields.ObjectField(properties={
+            'abbreviation': fields.TextField(),  # Only the abbreviation field
+        })
     })
 
-    # Define the name field with a keyword sub-field for sorting and aggregations
-    name = fields.TextField(
-        fields={
-            'keyword': fields.KeywordField(),  # Add a keyword sub-field for sorting
-        }
-    )
-
-    categories = fields.TextField(
-        fields={
-            'keyword': fields.KeywordField(),  # Add a keyword sub-field for sorting
-        }
-    )
+    class Index:
+        name = "foods"
+        settings = {"number_of_shards": 1, "number_of_replicas": 0}
 
     class Django:
-        model = Food  # The model associated with this Document
-        # Remove 'name' and 'categories' from the fields list because they are already defined above
-        fields = []  # List only other fields here
-
-        related_models = [Brand, Nutrient, Content]
+        model = Food
+        fields = [
+            "categories",
+            "name",
+        ]
+        related_models = [Brand, Nutrient, Content, Unit]
 
     def get_queryset(self):
-        """Not mandatory but recommended: this queryset will limit the data to index"""
-        return super(FoodDocument, self).get_queryset().select_related(
-            'brand'
-        ).prefetch_related(
-            'nutrients', 'content'
+        return super().get_queryset().select_related("brand").prefetch_related(
+            "nutrients", "content", "nutrients__foodnutrient", "content__nutrientcontent", "nutrients__foodnutrient__unit", "content__nutrientcontent__unit"
         )
+
+    def get_instances_from_related(self, related_instance):
+        if isinstance(related_instance, Brand):
+            return related_instance.food_set.all()
+        elif isinstance(related_instance, Nutrient):
+            return related_instance.food_set.all()
+        elif isinstance(related_instance, Content):
+            return related_instance.food_set.all()
+        elif isinstance(related_instance, Unit):
+            return related_instance.foodnutrient_set.all().values_list('food', flat=True)

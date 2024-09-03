@@ -10,14 +10,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 
 
-from django_elasticsearch_dsl_drf.filter_backends import (
-    FilteringFilterBackend,
-    OrderingFilterBackend,
-    DefaultOrderingFilterBackend,
-    CompoundSearchFilterBackend,
-)
-from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
-from .documents import FoodDocument
+# from django_elasticsearch_dsl_drf.filter_backends import (
+#     FilteringFilterBackend,
+#     OrderingFilterBackend,
+#     DefaultOrderingFilterBackend,
+#     CompoundSearchFilterBackend,
+# )
+# from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+# from .documents import FoodDocument
 
 
 
@@ -88,52 +88,77 @@ def foods(request):
 #     # Default ordering
 #     ordering = ('name',)
 
-class FoodDocumentView(DocumentViewSet):
-    permission_classes = [AllowAny]
-    document = FoodDocument
-    serializer_class = FoodSerializer
+# class FoodDocumentView(DocumentViewSet):
+#     permission_classes = [AllowAny]
+#     document = FoodDocument
+#     serializer_class = FoodSerializer
 
-    # Set the pagination class from `django_elasticsearch_dsl_drf`
-    pagination_class = PageNumberPagination
+#     # Set the pagination class from `django_elasticsearch_dsl_drf`
+#     pagination_class = PageNumberPagination
 
-    filter_backends = [
-        FilteringFilterBackend,
-        OrderingFilterBackend,
-        DefaultOrderingFilterBackend,
-        CompoundSearchFilterBackend,
-    ]
+#     filter_backends = [
+#         FilteringFilterBackend,
+#         OrderingFilterBackend,
+#         DefaultOrderingFilterBackend,
+#         CompoundSearchFilterBackend,
+#     ]
 
-    # Define search fields
-    search_fields = [
-        'name', 'categories'
-    ]
+#     # Define search fields
+#     search_fields = [
+#         'name', 'categories'
+#     ]
 
-    # Define filter fields
-    filter_fields = {
-        'categories': 'categories.keyword',
-        'brand': 'brand.brand.raw',
-        'nutrients': 'nutrients.name.raw',
-        'content': 'content.content.raw',
-    }
+#     # Define filter fields
+#     filter_fields = {
+#         'categories': 'categories.keyword',
+#         'brand': 'brand.brand.raw',
+#         'nutrients': 'nutrients.name.raw',
+#         'content': 'content.content.raw',
+#     }
 
-    # Define ordering fields
-    ordering_fields = {
-        'name': 'name.keyword',
-        'categories': 'categories.keyword',
-    }
+#     # Define ordering fields
+#     ordering_fields = {
+#         'name': 'name.keyword',
+#         'categories': 'categories.keyword',
+#     }
 
-    # Default ordering
-    ordering = ('name.keyword',)
+#     # Default ordering
+#     ordering = ('name.keyword',)
 
-    def list(self, request, *args, **kwargs):
-        search_query = request.GET.get('name')
-        if search_query:
-            # Use the document class to perform a search with the query
-            search = self.document.search().query("match", name=search_query)
-            # Modify the queryset returned by the view
-            queryset = search.to_queryset()
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                return self.get_paginated_response(page)
+#     def list(self, request, *args, **kwargs):
+#         search_query = request.GET.get('name')
+#         if search_query:
+#             # Use the document class to perform a search with the query
+#             search = self.document.search().query("match", name=search_query)
+#             # Modify the queryset returned by the view
+#             queryset = search.to_queryset()
+#             page = self.paginate_queryset(queryset)
+#             if page is not None:
+#                 return self.get_paginated_response(page)
         
-        return super().list(request, *args, **kwargs)
+#         return super().list(request, *args, **kwargs)
+
+# from django.shortcuts import render
+from elasticsearch_dsl.query import MultiMatch
+from .documents import FoodDocument
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def search_food(request):
+    q = request.GET.get("q")
+    results = []
+    if q:
+        query = MultiMatch(
+            query=q, 
+            fields=[
+                "categories", 
+                "name", 
+                "brand.brand",  # Nested brand field
+                "nutrients.unit.abbreviation",  # Nested unit abbreviation field for nutrients
+                "content.unit.abbreviation",  # Nested unit abbreviation field for content
+            ], 
+            fuzziness="AUTO"
+        )
+        s = FoodDocument.search().query(query)[0:5]
+        results = s.execute().to_dict()['hits']['hits']
+    
+    return Response({"foods": results})
